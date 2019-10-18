@@ -1,0 +1,220 @@
+ssh -l kichun 10.20.12.148  -- ssh 로그인
+
+[kichun@tdb148 ~]$ su - oracle
+
+[oracle@tdb148 ~]$ cd $ORACLE_BASE/admin
+
+[oracle@tdb148 admin]$ cd SSDTEST
+
+[oracle@tdb148 admin]$ ll
+
+drwxr-xr-x 2 oracle oinstall 4096 Sep 21 18:51 bdump
+drwxr-xr-x 2 oracle oinstall 4096 Sep 21 13:54 cdump
+drwxr-xr-x 2 oracle oinstall 4096 Sep 21 15:16 oradata
+drwxr-xr-x 2 oracle oinstall 4096 Sep 21 14:38 pfile
+drwxr-xr-x 2 oracle oinstall 4096 Sep 21 19:51 scripts
+drwxr-xr-x 2 oracle oinstall 4096 Sep 21 18:58 udump
+
+[oracle@tdb148 admin]$ mkdir NEW_LIMDB
+
+[oracle@tdb148 admin]$ cd NEW_LIMDB
+
+[oracle@tdb148 NEW_LIMDB]$ mkdir bdump cdump oradata pfile scripts udump
+
+[oracle@tdb148 NEW_LIMDB]$ cp ../LIMDB/scripts/* ./scripts
+
+[oracle@tdb148 scripts]$ ll
+
+-rw-r--r-- 1 oracle oinstall  433 Sep 23 06:35 context.sql
+-rw-r--r-- 1 oracle oinstall  783 Sep 23 06:35 CreateDBCatalog.sql
+-rw-r--r-- 1 oracle oinstall 1787 Sep 23 06:35 CreateDBFiles.sql
+-rw-r--r-- 1 oracle oinstall  942 Sep 23 06:35 CreateDB.sql
+-rw-r--r-- 1 oracle oinstall  316 Sep 23 06:35 cwmlite.sql
+-rw-r--r-- 1 oracle oinstall 1403 Sep 23 06:35 demoSchemas.sql
+-rw-r--r-- 1 oracle oinstall 3035 Sep 23 06:35 init.ora
+-rw-r--r-- 1 oracle oinstall  202 Sep 23 06:35 interMedia.sql
+-rw-r--r-- 1 oracle oinstall  373 Sep 23 06:35 JServer.sql
+-rw-r--r-- 1 oracle oinstall 2042 Sep 23 06:35 LIMDB.sh
+-rw-r--r-- 1 oracle oinstall  334 Sep 23 06:35 odm.sql
+-rw-r--r-- 1 oracle oinstall  197 Sep 23 06:35 ordinst.sql
+-rw-r--r-- 1 oracle oinstall  477 Sep 23 06:35 postDBCreation.sql
+-rw-r--r-- 1 oracle oinstall  195 Sep 23 06:35 spatial.sql
+-rw-r--r-- 1 oracle oinstall  279 Sep 23 06:35 ultraSearch.sql
+-rw-r--r-- 1 oracle oinstall  328 Sep 23 06:35 xdb_protocol.sql
+
+[oracle@tdb148 scripts]$ vi init.ora
+
+:1,$ s/LIMDB/NEW_LIMDB/g
+
+[oracle@tdb148 scripts]$ mv LIMDB.sh NEW_LIMDB.sh
+
+[oracle@tdb148 scripts]$ vi NEW_LIMDB.sh
+
+:1,$ s/LIMDB/NEW_LIMDB/g
+
+[oracle@tdb148 scripts]$ vi NEW_LIMDB.sh
+
+[oracle@tdb148 scripts]$ env | grep ORA
+
+[oracle@tdb148 scripts]$ cd ~
+
+[oracle@tdb148 ~] vi .bashrc
+
+ORACLE_SID=NEW_LIMDB
+
+[oracle@tdb148 ~] . .bashrc
+
+[oracle@tdb148 ~] env | grep ORA
+
+[oracle@tdb148 ~]$ cd $ORACLE_BASE/admin/NEW_LIMDB
+
+[oracle@tdb148 NEW_LIMDB]$ cd scripts
+
+[oracle@tdb148 scripts]$ cat NEW_LIMDB.sh
+
+[oracle@tdb148 scripts]$ orapwd file=/oracle/app/oracle/product/9.2.0/dbs/orapwNEW_LIMDB password=change_on_install
+
+[oracle@tdb148 scripts]$ cd $ORACLE_HOME/dbs
+
+[oracle@tdb148 dbs]$ ll orapwNEW_LIMDB
+
+-rwSr----- 1 oracle oinstall 1536 Sep 23 07:07 orapwN_LIMDB
+
+[oracle@tdb148 dbs]$ cd $ORACLE_BASE/admin/NEW_LIMDB/scripts
+
+[oracle@tdb148 scripts]$ cat NEW_LIMDB.sh
+
+[oracle@tdb148 scripts]$ vi CreateDB.sql
+
+:1,$ s/LIMDB/NEW_LIMDB/g
+
+[oracle@tdb148 scripts]$ vi CreateDB.sql
+
+
+CREATE DATABASE NEW_LIMDB
+*
+ERROR at line 1:
+ORA-01501: CREATE DATABASE failed
+ORA-01127: database name 'NEW_LIMDB' exceeds size limit of 8 characters
+
+--> SID 이름에 제한이 있구나. ㅎㅎ 8 characters
+--> 다시 다 NEW_LIMDB -> N_LIMDB 로 변경.
+
+[oracle@tdb148 scripts]$ vi CreateDB.sql
+
+:1,$ s/LIMDB/N_LIMDB/g
+
+[oracle@tdb148 scripts]$ sqlplus /nolog @/oracle/app/oracle/admin/N_LIMDB/scripts/CreateDB.sql
+
+디비생성.
+control file, redo log file, system file, temp file, undo file
+
+[oracle@tdb148 scripts]$ ll ../oradata
+
+-rw-r----- 1 oracle oinstall   1613824 Sep 23 07:10 control01.ctl
+-rw-r----- 1 oracle oinstall   1613824 Sep 23 07:10 control02.ctl
+-rw-r----- 1 oracle oinstall   1613824 Sep 23 07:10 control03.ctl
+-rw-r----- 1 oracle oinstall   5243392 Sep 23 07:09 redo01.log
+-rw-r----- 1 oracle oinstall   5243392 Sep 23 07:09 redo02.log
+-rw-r----- 1 oracle oinstall   5243392 Sep 23 07:09 redo03.log
+-rw-r----- 1 oracle oinstall 262152192 Sep 23 07:09 system01.dbf
+-rw-r----- 1 oracle oinstall  41951232 Sep 23 07:09 temp01.dbf
+-rw-r----- 1 oracle oinstall 209723392 Sep 23 07:09 undotbs01.dbf
+
+[oracle@tdb148 scripts]$ vi CreateDBCatalog.sql
+
+--> 여긴 고칠것이 없네.
+
+[oracle@tdb148 scripts]$ sqlplus /nolog @/oracle/app/oracle/admin/N_LIMDB/scripts/CreateDBCatalog.sql
+
+[oracle@tdb148 scripts]$ vi postDBCreation.sql
+
+:1,$ s/LIMDB/N_LIMDB/g
+
+[oracle@tdb148 scripts]$ sqlplus /nolog @/oracle/app/oracle/admin/N_LIMDB/scripts/postDBCreation.sql
+
+여기서 spfile 을 만드네.
+
+[oracle@tdb148 scripts]$ ps -ef | grep N_LIMDB
+
+oracle   14389     1  0 07:20 ?        00:00:00 ora_pmon_N_LIMDB
+oracle   14391     1  0 07:20 ?        00:00:00 ora_dbw0_N_LIMDB
+oracle   14393     1  0 07:20 ?        00:00:00 ora_lgwr_N_LIMDB
+oracle   14395     1  0 07:20 ?        00:00:00 ora_ckpt_N_LIMDB
+oracle   14397     1  0 07:20 ?        00:00:00 ora_smon_N_LIMDB
+oracle   14399     1  0 07:20 ?        00:00:00 ora_reco_N_LIMDB
+oracle   14401     1  0 07:20 ?        00:00:00 ora_cjq0_N_LIMDB
+oracle   14403     1  0 07:20 ?        00:00:00 ora_qmn0_N_LIMDB
+oracle   14409 14289  0 07:21 pts/2    00:00:00 grep N_LIMDB
+
+[oracle@tdb148 scripts]$ ss
+
+
+SQL> create pfile from spfile; -- pfile 생성
+
+SQL> shutdown immediate
+Database closed.
+Database dismounted.
+ORACLE instance shut down.
+SQL> exit
+
+[oracle@tdb148 scripts]$ cd $ORACLE_HOME/dbs
+
+[oracle@tdb148 dbs]$ mv spfileN_LIMDB.ora spfileN_LIMDB.ora.bak
+
+[oracle@tdb148 dbs]$ cp initLIMDB.ora initN_LIMDB.ora
+
+[oracle@tdb148 dbs]$ vi initN_LIMDB.ora
+
+:1,$ s/SSDTEST/N_LIMDB/g
+local_listener 의 port 수정. 1599 
+
+[oracle@tdb148 dbs]$ ln -s /oracle/app/oracle/admin/N_LIMDB/pfile/initN_LIMDB.ora initN_LIMDB.ora
+
+심볼릭 링크
+
+[oracle@tdb148 dbs]$ cd $ORACLE_HOME/network/admin
+
+[oracle@tdb148 dbs]$ vi listener.ora
+
+[oracle@tdb148 dbs]$ vi tnsnames.ora
+
+[oracle@tdb148 dbs]$ lsnrctl start listener_n_limdb
+
+[oracle@tdb148 dbs]$ ps -ef | grep tns
+
+oracle   11021     1  0 Sep21 ?        00:00:00 /oracle/app/oracle/product/9.2.0/bin/tnslsnr listener_lhjdb -inherit
+kihyun   11399     1  0 Sep21 ?        00:00:00 /oracle/app/oracle/product/9.2.0/bin/tnslsnr listener_lkhdb -inherit
+kichun   11708     1  0 Sep21 ?        00:00:00 /oracle/app/oracle/product/9.2.0/bin/tnslsnr listener_limdb -inherit
+oracle   14699     1  0 07:47 pts/3    00:00:00 /oracle/app/oracle/product/9.2.0/bin/tnslsnr listener_n_limdb -inherit
+
+[oracle@tdb148 dbs]$ lsnrctl stop listener_n_limdb
+
+[oracle@tdb148 dbs]$ su - kichun
+
+[kichun@tdb148 dbs]$ vi .bashrc
+
+#ORACLE_SID=LIMDB  
+ORACLE_SID=N_LIMDB  
+
+[kichun@tdb148 dbs]$ . .bashrc
+
+[kichun@tdb148 dbs]$ lsnrctl start listener_n_limdb
+
+LSNRCTL for Linux: Version 9.2.0.8.0 - Production on 23-SEP-2015 07:54:58
+
+Copyright (c) 1991, 2006, Oracle Corporation.  All rights reserved.
+
+Starting /oracle/app/oracle/product/9.2.0/bin/tnslsnr: please wait...
+
+TNSLSNR for Linux: Version 9.2.0.8.0 - Production
+NL-00280: error creating log stream /oracle/app/oracle/product/9.2.0/network/log/listener_n_limdb.log
+ NL-00278: cannot open log file
+  SNL-00016: snlfohd: error opening file
+   Linux Error: 13: Permission denied
+
+oracle 계정으로 chmod 666 /oracle/app/oracle/product/9.2.0/network/log/listener_n_limdb.log
+
+[kichun@tdb148 dbs]$ lsnrctl start listener_n_limdb
+
+[kichun@tdb148 dbs]$ lsnrctl services listener_n_limdb
